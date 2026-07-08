@@ -421,6 +421,20 @@ details.tree[open] > summary::before{transform:rotate(90deg);}
 .coc-rules{display:flex;flex-direction:column;gap:2px;}
 .coc-rule-row{display:flex;gap:9px;font-size:12.5px;margin:9px 0;line-height:1.55;color:var(--ink);}
 .coc-dot{width:10px;height:10px;border-radius:50%;flex:none;margin-top:5px;}
+.coc-table-scroll{
+  margin-top:16px;
+  max-height:202px;
+  overflow-y:auto;
+  overflow-x:auto;
+  border:1px solid var(--line);
+  border-radius:8px;
+}
+.coc-table-scroll .reason-table{margin:0;min-width:760px;}
+.coc-table-scroll .reason-table th{
+  position:sticky;
+  top:0;
+  z-index:1;
+}
 @media (max-width:820px){ .coc-grid{grid-template-columns:1fr;} }
 
 footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px 0;font-family:'IBM Plex Mono',monospace;}
@@ -604,7 +618,9 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px 
         <div class="coc-rule-row"><span class="coc-dot" style="background:var(--clay)"></span><span><b>Khác</b> — mô hình Hộ liên kết, mủ bảo vệ, mủ thu mua ngoài chưa được thẩm định DDS.</span></div>
       </div>
     </div>
-    <table class="reason-table" id="cocTable" style="margin-top:16px;"></table>
+    <div class="coc-table-scroll">
+      <table class="reason-table" id="cocTable"></table>
+    </div>
   </div>
 
   <!-- OPERATING CONDITIONS -->
@@ -631,7 +647,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px 
   <!-- INSIGHT PRIORITY -->
   <div class="card acc-insight">
     <div class="card-head">
-      <h2 class="card-title">Điểm cần chú ý theo đội</h2>
+      <h2 class="card-title">Tiến độ thực hiện</h2>
       <span class="card-caption" id="insightCaption"></span>
     </div>
     <div class="tap-rule"></div>
