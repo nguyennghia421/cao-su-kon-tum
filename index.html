@@ -345,7 +345,18 @@ details.tree[open] > summary::before{transform:rotate(90deg);}
 .chart-legend .lg-item{display:flex;align-items:center;gap:6px;}
 .chart-legend .sw{width:14px;height:14px;border-radius:3px;display:inline-block;}
 .chart-legend .sw.line{width:16px;height:2px;border-radius:0;}
-.chart-svg-wrap{width:100%;overflow-x:visible;}
+.chart-svg-wrap{width:100%;overflow-x:visible;position:relative;}
+.chart-tooltip{
+  position:absolute;pointer-events:none;z-index:40;transform:translate(-50%,-100%) translateY(-10px);
+  background:#173D30;color:#F3F4EC;padding:8px 12px;border-radius:8px;
+  font-size:12px;line-height:1.4;box-shadow:0 10px 26px rgba(0,0,0,.24);
+  opacity:0;transition:opacity .08s ease;white-space:nowrap;font-family:'Inter',sans-serif;
+}
+.chart-tooltip.show{opacity:1;}
+.chart-tooltip::after{
+  content:'';position:absolute;left:50%;top:100%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:#173D30;
+}
 .chart-svg-wrap svg{width:100%;height:auto;display:block;font-family:'Inter',sans-serif;}
 .bar-kh{fill:var(--gold);opacity:.55;}
 .bar-tt{fill:var(--teal);}
@@ -1156,8 +1167,10 @@ function buildChartSVG(labels, khArr, ttArr){
     const khX = cx - gap/2 - barW;
     const ttX = cx + gap/2;
     const khY = y1(khV), ttY = y1(ttV);
-    bars += `<rect class="bar-kh" x="${khX.toFixed(1)}" y="${khY.toFixed(1)}" width="${barW.toFixed(1)}" height="${(mT+plotH-khY).toFixed(1)}" rx="2"><title>${lb} — Kế hoạch: ${fmt(khV)} kg</title></rect>`;
-    bars += `<rect class="bar-tt" x="${ttX.toFixed(1)}" y="${ttY.toFixed(1)}" width="${barW.toFixed(1)}" height="${(mT+plotH-ttY).toFixed(1)}" rx="2"><title>${lb} — Thực hiện: ${fmt(ttV)} kg</title></rect>`;
+    const tip = `${lb} — Kế hoạch: ${fmt(khV)} kg · Thực hiện: ${fmt(ttV)} kg (${fmt1(pct(ttV,khV))}% KH)`;
+    bars += `<rect class="bar-kh" x="${khX.toFixed(1)}" y="${khY.toFixed(1)}" width="${barW.toFixed(1)}" height="${(mT+plotH-khY).toFixed(1)}" rx="2" data-tip="${tip}"></rect>`;
+    bars += `<rect class="bar-tt" x="${ttX.toFixed(1)}" y="${ttY.toFixed(1)}" width="${barW.toFixed(1)}" height="${(mT+plotH-ttY).toFixed(1)}" rx="2" data-tip="${tip}"></rect>`;
+    bars += `<rect x="${(cx-groupW/2).toFixed(1)}" y="${mT}" width="${groupW.toFixed(1)}" height="${plotH.toFixed(1)}" fill="transparent" data-tip="${tip}"></rect>`;
     const showEvery = n>16 ? 2 : 1;
     if(i % showEvery === 0){
       xlabels += `<text class="x-lbl" x="${cx}" y="${H-mB+18}" text-anchor="middle">${lb.replace('Tuần ','T').replace('Tháng ','Th ').replace('Ngày ','')}</text>`;
@@ -1182,6 +1195,7 @@ function renderChart(rows){
     ttArr.push(Math.round(a.tongQK));
   });
   document.getElementById('mainChart').innerHTML = buildChartSVG(labels, khArr, ttArr);
+  wireChartTooltip(document.getElementById('mainChart'));
   document.getElementById('chartLegend').innerHTML = `
     <span class="lg-item"><span class="sw" style="background:var(--gold);opacity:.55"></span>Kế hoạch (kg)</span>
     <span class="lg-item"><span class="sw" style="background:var(--teal)"></span>Thực hiện (kg)</span>`;
@@ -1222,11 +1236,16 @@ function buildLossSVG(labels, ntArr, nmArr, lossPctArr){
   labels.forEach((lb,i)=>{
     const cx = mL + groupW*i + groupW/2;
     const ntV = ntArr[i], nmV = nmArr[i];
+    const lossKg = Math.max(0, ntV - nmV);
+    const lossPctV = lossPctArr[i];
+    const tip = `${lb} — Cân tại NT: ${fmt(ntV)} kg · Cân tại NM: ${fmt(nmV)} kg · Hao hụt: ${fmt(lossKg)} kg (${fmt1(lossPctV)}%)`;
     const ntX = cx - gap/2 - barW;
     const nmX = cx + gap/2;
     const ntY = y1(ntV), nmY = y1(nmV);
-    bars += `<rect class="bar-kh" x="${ntX.toFixed(1)}" y="${ntY.toFixed(1)}" width="${barW.toFixed(1)}" height="${(mT+plotH-ntY).toFixed(1)}" rx="2"><title>${lb} — Cân tại nông trường: ${fmt(ntV)} kg</title></rect>`;
-    bars += `<rect class="bar-tt" x="${nmX.toFixed(1)}" y="${nmY.toFixed(1)}" width="${barW.toFixed(1)}" height="${(mT+plotH-nmY).toFixed(1)}" rx="2"><title>${lb} — Cân tại nhà máy: ${fmt(nmV)} kg</title></rect>`;
+    bars += `<rect class="bar-kh" x="${ntX.toFixed(1)}" y="${ntY.toFixed(1)}" width="${barW.toFixed(1)}" height="${(mT+plotH-ntY).toFixed(1)}" rx="2" data-tip="${tip}"></rect>`;
+    bars += `<rect class="bar-tt" x="${nmX.toFixed(1)}" y="${nmY.toFixed(1)}" width="${barW.toFixed(1)}" height="${(mT+plotH-nmY).toFixed(1)}" rx="2" data-tip="${tip}"></rect>`;
+    // vùng bắt hover trong suốt phủ cả nhóm cột trong ngày để hover ở khoảng trống giữa 2 cột cũng thấy tooltip
+    bars += `<rect x="${(cx-groupW/2).toFixed(1)}" y="${mT}" width="${groupW.toFixed(1)}" height="${plotH.toFixed(1)}" fill="transparent" data-tip="${tip}"></rect>`;
     const showEvery = n>16 ? 2 : 1;
     if(i % showEvery === 0){
       xlabels += `<text class="x-lbl" x="${cx}" y="${H-mB+18}" text-anchor="middle">${lb.replace('Tuần ','T').replace('Tháng ','Th ').replace('Ngày ','')}</text>`;
@@ -1238,7 +1257,11 @@ function buildLossSVG(labels, ntArr, nmArr, lossPctArr){
     return [cx, y2(lossPctArr[i])];
   });
   const linePath = linePts.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
-  const dots = linePts.map((p,i)=>`<circle class="dot-loss" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.8"><title>${labels[i]} — Hao hụt: ${fmt1(lossPctArr[i])}%</title></circle>`).join('');
+  const dots = linePts.map((p,i)=>{
+    const ntV = ntArr[i], nmV = nmArr[i], lossKg = Math.max(0, ntV-nmV);
+    const tip = `${labels[i]} — Cân tại NT: ${fmt(ntV)} kg · Cân tại NM: ${fmt(nmV)} kg · Hao hụt: ${fmt(lossKg)} kg (${fmt1(lossPctArr[i])}%)`;
+    return `<circle class="dot-loss" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="transparent" data-tip="${tip}"></circle><circle class="dot-loss" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.8" style="pointer-events:none"></circle>`;
+  }).join('');
 
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     ${grid}
@@ -1264,6 +1287,7 @@ function renderLossChart(rows){
     sumNt += a.nuocTuoi; sumNm += a.nuocTuoiNM; sumLossKg += a.haoHutKg;
   });
   document.getElementById('lossChart').innerHTML = buildLossSVG(labels, ntArr, nmArr, lossPctArr);
+  wireChartTooltip(document.getElementById('lossChart'));
   document.getElementById('lossLegend').innerHTML = `
     <span class="lg-item"><span class="sw" style="background:var(--gold);opacity:.55"></span>Cân tại nông trường (kg)</span>
     <span class="lg-item"><span class="sw" style="background:var(--teal)"></span>Cân tại nhà máy (kg)</span>
@@ -1322,7 +1346,15 @@ function buildCumAreaSVG(labels, lkKh, lkTt){
     gapPolys += `<polygon class="${cls}" points="${pts}"/>`;
   }
 
-  const dotsTt = ptsTt.map((p,i)=>`<circle class="dot-tt" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.8"><title>${labels[i]} — Lũy kế thực hiện: ${fmt(lkTt[i])} kg</title></circle>`).join('');
+  const dotsTt = ptsTt.map((p,i)=>`<circle class="dot-tt" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.8" style="pointer-events:none"></circle>`).join('');
+  // vùng bắt hover theo từng mốc: hiện đủ lũy kế KH + lũy kế thực hiện + chênh lệch
+  const hitStrips = labels.map((lb,i)=>{
+    const x0 = i===0 ? mL : (xAt(i-1)+xAt(i))/2;
+    const x1 = i===n-1 ? mL+plotW : (xAt(i)+xAt(i+1))/2;
+    const d = lkTt[i]-lkKh[i];
+    const tip = `${lb} — Lũy kế KH: ${fmt(lkKh[i])} kg · Lũy kế TH: ${fmt(lkTt[i])} kg (${d>=0?'vượt':'chậm'} ${fmt(Math.abs(d))} kg)`;
+    return `<rect x="${x0.toFixed(1)}" y="${mT}" width="${(x1-x0).toFixed(1)}" height="${plotH.toFixed(1)}" fill="transparent" data-tip="${tip}"></rect>`;
+  }).join('');
 
   let xlabels='';
   labels.forEach((lb,i)=>{
@@ -1354,6 +1386,7 @@ function buildCumAreaSVG(labels, lkKh, lkTt){
     <path class="line-kh-dash" d="${lineKhPath}"/>
     <path class="line-tt" d="${lineTtPath}"/>
     ${dotsTt}
+    ${hitStrips}
     ${axisL}${xlabels}
     <text class="axis-lbl" x="${mL}" y="12" text-anchor="start">lũy kế (kg)</text>
     <g transform="translate(${calloutX},${calloutY})">
@@ -1394,13 +1427,21 @@ function buildDrcTrendSVG(labels, series){
     const pts = s.values.map((v,i)=>[xAt(i), y(v)]);
     const linePath = pts.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
     paths += `<path d="${linePath}" fill="none" stroke="${s.color}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
-    dots += pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="${s.color}"><title>${s.name} — ${labels[i]}: ${fmt1(s.values[i])}%</title></circle>`).join('');
+    dots += pts.map((p)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="${s.color}" style="pointer-events:none"></circle>`).join('');
+  });
+  // vùng bắt hover theo từng mốc thời gian: gộp DRC của mọi loại mủ đang hiển thị
+  let hitStrips = '';
+  labels.forEach((lb,i)=>{
+    const x0 = i===0 ? mL : (xAt(i-1)+xAt(i))/2;
+    const x1 = i===n-1 ? mL+plotW : (xAt(i)+xAt(i+1))/2;
+    const parts = series.map(s=>`${s.name}: ${fmt1(s.values[i])}%`).join(' · ');
+    hitStrips += `<rect x="${x0.toFixed(1)}" y="${mT}" width="${(x1-x0).toFixed(1)}" height="${plotH.toFixed(1)}" fill="transparent" data-tip="${lb} — ${parts}"></rect>`;
   });
 
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     ${grid}
     <line x1="${mL}" y1="${base}" x2="${W-mR}" y2="${base}" stroke="var(--muted)" stroke-width="1"/>
-    ${paths}${dots}${axisL}${xlabels}
+    ${paths}${dots}${hitStrips}${axisL}${xlabels}
   </svg>`;
 }
 function renderDrcTrend(rows){
@@ -1417,6 +1458,7 @@ function renderDrcTrend(rows){
   document.getElementById('drcTrendChart').innerHTML = series.length
     ? buildDrcTrendSVG(labels, series)
     : '<p style="color:var(--muted);font-size:12.5px;">Chọn ít nhất 1 loại mủ để xem DRC.</p>';
+  wireChartTooltip(document.getElementById('drcTrendChart'));
   document.getElementById('drcTrendLegend').innerHTML = series.map(s=>
     `<span class="lg-item"><span class="sw line" style="background:${s.color}"></span>${s.name}</span>`).join('');
   document.getElementById('drcTrendCaption').textContent =
@@ -1434,6 +1476,7 @@ function renderCumulativeArea(rows){
     lkTt.push(Math.round(runTt));
   });
   document.getElementById('areaChart').innerHTML = buildCumAreaSVG(labels, lkKh, lkTt);
+  wireChartTooltip(document.getElementById('areaChart'));
   document.getElementById('areaLegend').innerHTML = `
     <span class="lg-item"><span class="sw" style="background:var(--gold);opacity:.4"></span>Lũy kế kế hoạch (nền)</span>
     <span class="lg-item"><span class="sw" style="background:var(--teal)"></span>Lũy kế thực hiện</span>
@@ -1677,6 +1720,25 @@ function donutChartHtml(rows, opts={}){
     </div>
   </div>`;
 }
+/* Tooltip tự dựng dùng chung cho mọi biểu đồ SVG (bar/line/area) — thay cho
+   <title> gốc của trình duyệt vốn hiển thị không ổn định/trễ trong khung xem
+   trước. Các phần tử SVG cần hover chỉ cần có thuộc tính data-tip="...". */
+function wireChartTooltip(wrapEl){
+  if(!wrapEl) return;
+  let tip = wrapEl.querySelector('.chart-tooltip');
+  if(!tip){ tip = document.createElement('div'); tip.className = 'chart-tooltip'; wrapEl.appendChild(tip); }
+  const place = (e)=>{
+    const rect = wrapEl.getBoundingClientRect();
+    tip.style.left = (e.clientX - rect.left) + 'px';
+    tip.style.top = (e.clientY - rect.top) + 'px';
+  };
+  wrapEl.querySelectorAll('[data-tip]').forEach(t=>{
+    t.addEventListener('mouseenter', e=>{ tip.textContent = t.getAttribute('data-tip'); tip.classList.add('show'); place(e); });
+    t.addEventListener('mousemove', place);
+    t.addEventListener('mouseleave', ()=> tip.classList.remove('show'));
+  });
+}
+
 function wireDonutHover(container){
   if(!container) return;
   const wrap = container.querySelector('.donut-wrap');
@@ -1960,8 +2022,15 @@ function buildSeasonTrendSVG(monthRows){
   const lineKh = ptsKh.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
   const areaTt = 'M'+mL+','+base+' '+ptsTt.map(p=>'L'+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')+` L${(mL+stepX*(n-1)).toFixed(1)},${base} Z`;
   const lineTt = ptsTt.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
-  const dots = ptsTt.map((p,i)=>`<circle class="dot-tt" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3"><title>${monthRows[i].label}: ${fmt(monthRows[i].tt)} kg (KH ${fmt(monthRows[i].kh)} kg)</title></circle>`).join('');
+  const dots = ptsTt.map((p,i)=>`<circle class="dot-tt" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" style="pointer-events:none"></circle>`).join('');
   const xlabels = monthRows.map((r,i)=>`<text class="x-lbl" x="${xAt(i).toFixed(1)}" y="${H-mB+18}" text-anchor="middle">${r.label.replace('Tháng ','T')}</text>`).join('');
+  const hitStrips = monthRows.map((r,i)=>{
+    const x0 = i===0? mL : xAt(i)-stepX/2;
+    const x1 = i===n-1? mL+plotW : xAt(i)+stepX/2;
+    const d = r.tt - r.kh;
+    const tip = `${r.label} — Thực hiện: ${fmt(r.tt)} kg · Kế hoạch: ${fmt(r.kh)} kg (${d>=0?'vượt':'chậm'} ${fmt(Math.abs(d))} kg)`;
+    return `<rect x="${x0.toFixed(1)}" y="${mT}" width="${(x1-x0).toFixed(1)}" height="${plotH}" fill="transparent" data-tip="${tip}"></rect>`;
+  }).join('');
 
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     ${bands}${grid}
@@ -1969,7 +2038,7 @@ function buildSeasonTrendSVG(monthRows){
     <path class="area-tt" d="${areaTt}"/>
     <path class="line-kh-dash" d="${lineKh}"/>
     <path class="line-tt" d="${lineTt}"/>
-    ${dots}${axisL}${xlabels}
+    ${dots}${hitStrips}${axisL}${xlabels}
   </svg>`;
 }
 /* ---- YEAR LENS helper: treemap tỷ trọng đội (mosaic, flex-grow theo giá trị) ---- */
@@ -2011,6 +2080,7 @@ function renderYearLens(){
       <span><i style="background:var(--rust);opacity:.3"></i>Mùa nghỉ cạo / thay lá</span>
       <span><i style="background:var(--teal);opacity:.3"></i>Mùa mưa bão cao điểm</span>
     </div>`;
+  wireChartTooltip(document.getElementById('yearMonthRank'));
 
   const ytdDates = yearToDateStrings(year);
   const doiRows = DOI_LIST.map(doi=>{
