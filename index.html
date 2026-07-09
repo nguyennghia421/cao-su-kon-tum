@@ -43,11 +43,14 @@ h1,h2,h3,.display{font-family:'Barlow Condensed',sans-serif;letter-spacing:.01em
   opacity:.9;margin:4px 0 18px 0;
 }
 
-.app-layout{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh;}
+.app-layout{display:grid;grid-template-columns:260px minmax(0,1fr);align-items:stretch;min-height:100vh;}
 .sidebar{
-  position:sticky;top:0;height:100vh;overflow-y:auto;
   background:linear-gradient(180deg,#173D30,#102D24);
-  color:#F3F4EC;padding:14px 12px 18px;border-right:1px solid rgba(255,255,255,.12);
+  border-right:1px solid rgba(255,255,255,.12);
+}
+.sidebar-inner{
+  position:sticky;top:0;max-height:100vh;overflow-y:auto;
+  color:#F3F4EC;padding:14px 12px 18px;
 }
 .sidebar-brand{
   border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:14px 12px;
@@ -342,8 +345,8 @@ details.tree[open] > summary::before{transform:rotate(90deg);}
 .chart-legend .lg-item{display:flex;align-items:center;gap:6px;}
 .chart-legend .sw{width:14px;height:14px;border-radius:3px;display:inline-block;}
 .chart-legend .sw.line{width:16px;height:2px;border-radius:0;}
-.chart-svg-wrap{width:100%;overflow-x:auto;}
-.chart-svg-wrap svg{width:100%;height:auto;min-width:460px;font-family:'Inter',sans-serif;}
+.chart-svg-wrap{width:100%;overflow-x:visible;}
+.chart-svg-wrap svg{width:100%;height:auto;display:block;font-family:'Inter',sans-serif;}
 .bar-kh{fill:var(--gold);opacity:.55;}
 .bar-tt{fill:var(--teal);}
 .bar-tt:hover, .bar-kh:hover{opacity:.85;}
@@ -359,7 +362,7 @@ details.tree[open] > summary::before{transform:rotate(90deg);}
 .line-loss{fill:none;stroke:var(--rust);stroke-width:2.25;}
 .dot-loss{fill:var(--rust);stroke:#fff;stroke-width:1;}
 .callout-box{fill:#fff;stroke:var(--line);}
-.callout-txt{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;}
+.callout-txt{font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:700;}
 .grid-line{stroke:var(--line);stroke-width:1;}
 .axis-lbl{fill:var(--muted);font-size:13px;font-weight:500;}
 .x-lbl{fill:var(--ink);font-size:13.5px;font-weight:700;}
@@ -379,7 +382,7 @@ details.tree[open] > summary::before{transform:rotate(90deg);}
 .cluster-to-val{font-family:'IBM Plex Mono',monospace;font-size:11px;text-align:right;color:var(--ink);}
 
 /* ---------- MONTH LENS: leaderboard (đội trong công ty) ---------- */
-.leaderboard{display:flex;flex-direction:column;gap:7px;}
+.leaderboard{display:flex;flex-direction:column;gap:7px;max-height:420px;overflow-y:auto;padding-right:4px;}
 .lb-row{
   display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;align-items:center;
   background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 12px;
@@ -421,27 +424,22 @@ details.tree[open] > summary::before{transform:rotate(90deg);}
 .coc-rules{display:flex;flex-direction:column;gap:2px;}
 .coc-rule-row{display:flex;gap:9px;font-size:12.5px;margin:9px 0;line-height:1.55;color:var(--ink);}
 .coc-dot{width:10px;height:10px;border-radius:50%;flex:none;margin-top:5px;}
-.coc-table-scroll{
-  margin-top:16px;
-  max-height:202px;
-  overflow-y:auto;
-  overflow-x:auto;
-  border:1px solid var(--line);
-  border-radius:8px;
-}
-.coc-table-scroll .reason-table{margin:0;min-width:760px;}
-.coc-table-scroll .reason-table th{
-  position:sticky;
-  top:0;
-  z-index:1;
-}
 @media (max-width:820px){ .coc-grid{grid-template-columns:1fr;} }
+
+/* ---------- OPERATING MODE RED ALERT ---------- */
+.ops-alert{
+  display:flex;align-items:flex-start;gap:12px;background:#FCEEEA;border:1.5px solid var(--rust);
+  border-radius:10px;padding:12px 16px;margin-bottom:14px;
+}
+.ops-alert-icon{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--rust);flex:none;line-height:1;}
+.ops-alert-text{font-size:12.5px;color:#7A2E22;line-height:1.5;}
+.ops-alert-text b{color:var(--rust);}
 
 footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px 0;font-family:'IBM Plex Mono',monospace;}
 
 @media (max-width:820px){
   .app-layout{grid-template-columns:1fr;}
-  .sidebar{position:static;height:auto;}
+  .sidebar-inner{position:static;max-height:none;}
   .kpi-row{grid-template-columns:1fr;}
   .lens-grid{grid-template-columns:1fr;}
   .lens-grid.month-grid{grid-template-columns:1fr;}
@@ -459,6 +457,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px 
 
 <div class="app-layout">
   <aside class="sidebar">
+    <div class="sidebar-inner">
     <div class="sidebar-brand">
       <img class="brand-logo" src="logo-vietnam-rubber-group.png" alt="Vietnam Rubber Group">
       <div class="brand-title">Báo cáo sản lượng mủ khai thác</div>
@@ -469,7 +468,6 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px 
       <div class="tabs">
         <button class="tab-btn active" data-tab="tuan">Báo cáo tuần</button>
         <button class="tab-btn" data-tab="thang">Báo cáo tháng</button>
-        <button class="tab-btn" data-tab="quy">Báo cáo quý</button>
         <button class="tab-btn" data-tab="nam">Báo cáo năm</button>
       </div>
     </div>
@@ -499,6 +497,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px 
         </div>
       </div>
     </div>
+    </div>
   </aside>
 
   <main class="shell">
@@ -511,6 +510,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px 
     </div>
     <div class="view-meta" id="viewMeta"></div>
   </div>
+
   <!-- KPI RINGS -->
   <div class="kpi-row" id="kpiRow"></div>
 
@@ -591,6 +591,17 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px 
     <div id="lossChart" class="chart-svg-wrap"></div>
   </div>
 
+  <!-- DRC THEO LOẠI MỦ -->
+  <div class="card">
+    <div class="card-head">
+      <h2 class="card-title">DRC (%) đo được theo từng loại mủ</h2>
+      <span class="card-caption" id="drcTrendCaption"></span>
+    </div>
+    <div class="tap-rule"></div>
+    <div class="chart-legend" id="drcTrendLegend"></div>
+    <div id="drcTrendChart" class="chart-svg-wrap"></div>
+  </div>
+
   <!-- DETAIL TABLE -->
   <div class="card">
     <div class="card-head">
@@ -618,7 +629,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px 
         <div class="coc-rule-row"><span class="coc-dot" style="background:var(--clay)"></span><span><b>Khác</b> — mô hình Hộ liên kết, mủ bảo vệ, mủ thu mua ngoài chưa được thẩm định DDS.</span></div>
       </div>
     </div>
-    <div class="coc-table-scroll">
+    <div class="tablewrap" style="margin-top:16px;">
       <table class="reason-table" id="cocTable"></table>
     </div>
   </div>
@@ -630,31 +641,24 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px 
       <span class="card-caption" id="reasonCaption">Thống kê ngày ảnh hưởng bởi mưa bão, ngày lễ, chủ nhật và nghỉ cạo</span>
     </div>
     <div class="tap-rule"></div>
+    <div class="ops-alert" id="opsAlert" style="display:none"></div>
     <div class="reason-grid" id="reasonKpi"></div>
     <div class="reason-strip" id="reasonStrip"></div>
-    <div class="reason-analysis-grid">
-      <div class="tablewrap">
-        <table class="reason-table" id="reasonTable"></table>
-      </div>
-      <div class="reason-donut-card">
-        <h3>Cơ cấu mô hình kinh doanh</h3>
-        <p class="note">Tỷ trọng quy khô theo mô hình trong kỳ đang xem</p>
-        <div id="reasonModelDonut"></div>
-      </div>
+    <div class="tablewrap">
+      <table class="reason-table" id="reasonTable"></table>
     </div>
   </div>
 
   <!-- INSIGHT PRIORITY -->
   <div class="card acc-insight">
     <div class="card-head">
-      <h2 class="card-title">Tiến độ thực hiện</h2>
+      <h2 class="card-title">Điểm cần chú ý theo đội</h2>
       <span class="card-caption" id="insightCaption"></span>
     </div>
     <div class="tap-rule"></div>
     <div id="insightPanel"></div>
   </div>
 
-  <footer>Demo báo cáo cao su — cấu trúc KPI bám file khách gửi; chi tiết tổ/nhân sự và điều kiện vận hành được giả lập để trình bày luồng phân tích</footer>
   </main>
 </div>
 
@@ -771,6 +775,9 @@ DOI_LIST.forEach(doi=>{
     // baseline hao hụt (%) khi cân lại tại nhà máy so với cân tại nông trường —
     // mô phỏng khoảng cách vận chuyển / thời gian lưu bãi khác nhau theo từng tổ
     const haoHutBaseTo = 1.0 + rng()*1.8; // ~1.0% - 2.8%
+    // DRC nền của mủ tạp/mủ đông cũng dao động theo từng tổ (vườn khác nhau, thời gian lưu bãi khác nhau)
+    const tapBaseTo = 41 + rng()*15;   // ~41-56%
+    const dongBaseTo = 79 + rng()*15;  // ~79-94%
 
     for(let m=0;m<12;m++){
       const dim = daysInMonth(REPORT_YEAR,m);
@@ -799,9 +806,9 @@ DOI_LIST.forEach(doi=>{
             drcNT = Math.max(15, baseDRC + (r4-0.5)*6);
             drcNM = Math.max(15, drcNT + (r5-0.5)*1.6);
             tapTuoi = nuocTuoi * (0.06+r6*0.06);
-            drcTap = 48 + (r4-0.5)*10;
+            drcTap = Math.max(30, Math.min(64, tapBaseTo + (r4-0.5)*16));
             dongTuoi = nuocTuoi * (0.02+r3*0.04);
-            drcDong = 88 + (r5-0.5)*8;
+            drcDong = Math.max(62, Math.min(97, dongBaseTo + (r5-0.5)*20));
             // hao hụt trọng lượng khi cân lại dưới nhà máy (bay hơi, rơi vãi, sai số cân)
             haoHutPct = Math.max(0.3, Math.min(5, haoHutBaseTo + (r7-0.5)*1.2 + (isRainStorm?0.6:0)));
             nuocTuoiNM = nuocTuoi * (1 - haoHutPct/100);
@@ -827,7 +834,7 @@ const state = {
   loaimu: new Set(LOAIMU.map(l=>l.key)),
   weekOf: '2026-06', weekIdx:0,   // tuần: month + tuần index (0-based, 7-day buckets)
   month: '2026-06',
-  quarter: '2026-Q2',
+  quarter: '2026-Q2',  // deprecated (kept only to avoid breaking old bookmarks); quarter tab removed
   year: '2026',
 };
 
@@ -863,7 +870,8 @@ function toOfDoi(doiId){
 /* aggregate an array of date-strings into one row of totals */
 function aggDatesForTos(dates, tos, mohinhSet=state.mohinh){
   let out = {nuocTuoi:0, nuocTuoiNM:0, haoHutKg:0, nuocQKtot:0, tapTuoi:0, tapQK:0, dongTuoi:0, dongQK:0, kh:0,
-             drcNTsum:0, drcNTw:0, drcNMsum:0, drcNMw:0, hasAnyData:false, hasFuture:false};
+             drcNTsum:0, drcNTw:0, drcNMsum:0, drcNMw:0, drcTapsum:0, drcTapw:0, drcDongsum:0, drcDongw:0,
+             hasAnyData:false, hasFuture:false};
   dates.forEach(dkey=>{
     tos.forEach(to=>{
       const rec = toDay[to.id][dkey];
@@ -885,10 +893,12 @@ function aggDatesForTos(dates, tos, mohinhSet=state.mohinh){
       if(state.loaimu.has('tap')){
         const t = rec.tapTuoi*f;
         out.tapTuoi += t; out.tapQK += t*(rec.drcTap/100);
+        out.drcTapsum += rec.drcTap*t; out.drcTapw += t;
       }
       if(state.loaimu.has('dong')){
         const t = rec.dongTuoi*f;
         out.dongTuoi += t; out.dongQK += t*(rec.drcDong/100);
+        out.drcDongsum += rec.drcDong*t; out.drcDongw += t;
       }
     });
   });
@@ -896,6 +906,8 @@ function aggDatesForTos(dates, tos, mohinhSet=state.mohinh){
   out.tongQK = out.nuocQKtot + out.tapQK + out.dongQK;
   out.drcNT = out.drcNTw ? out.drcNTsum/out.drcNTw : 0;
   out.drcNM = out.drcNMw ? out.drcNMsum/out.drcNMw : 0;
+  out.drcTap = out.drcTapw ? out.drcTapsum/out.drcTapw : 0;
+  out.drcDong = out.drcDongw ? out.drcDongsum/out.drcDongw : 0;
   return out;
 }
 /* aggregate an array of date-strings into one row of totals, honoring filters */
@@ -923,7 +935,6 @@ function weekBucketsOfMonth(y,m){
    ========================================================================= */
 const MONTHS_2026 = [];
 for(let m=0;m<12;m++){ MONTHS_2026.push({val:'2026-'+pad(m+1), label:'Tháng '+(m+1)+'/2026'}); }
-const QUARTERS_2026 = [1,2,3,4].map(q=>({val:'2026-Q'+q, label:'Quý '+q+'/2026'}));
 
 function fmt(n){ return Math.round(n).toLocaleString('vi-VN'); }
 function fmt1(n){ return n.toLocaleString('vi-VN',{minimumFractionDigits:1,maximumFractionDigits:1}); }
@@ -984,9 +995,6 @@ function renderPeriodOptions(){
   } else if(state.tab==='thang'){
     fPeriod.innerHTML = MONTHS_2026.map(mm=>`<option value="${mm.val}">${mm.label}</option>`).join('');
     fPeriod.value = state.month;
-  } else if(state.tab==='quy'){
-    fPeriod.innerHTML = QUARTERS_2026.map(q=>`<option value="${q.val}">${q.label}</option>`).join('');
-    fPeriod.value = state.quarter;
   } else {
     fPeriod.innerHTML = `<option value="2026">Năm 2026</option>`;
     fPeriod.value = state.year;
@@ -995,7 +1003,6 @@ function renderPeriodOptions(){
 fPeriod.addEventListener('change', ()=>{
   if(state.tab==='tuan') state.weekIdx = Number(fPeriod.value);
   else if(state.tab==='thang') state.month = fPeriod.value;
-  else if(state.tab==='quy') state.quarter = fPeriod.value;
   else state.year = fPeriod.value;
   renderAll();
 });
@@ -1049,16 +1056,6 @@ function currentRowsAndMeta(){
     const buckets = weekBucketsOfMonth(y,m-1);
     const rows = buckets.map(b=>({label:b.label, dates:datesInRange(y,m-1,b.start,b.end)}));
     return {rows, periodLabel:`Tháng ${m}/${y}`, month:m-1, year:y};
-  }
-  if(state.tab==='quy'){
-    const [yPart,qPart] = state.quarter.split('-Q');
-    const y = Number(yPart), q = Number(qPart);
-    const startMonth = (q-1)*3;
-    const rows = [0,1,2].map(offset=>{
-      const m = startMonth + offset;
-      return {label:'Tháng '+(m+1), dates:datesInRange(y,m,1,daysInMonth(y,m))};
-    });
-    return {rows, periodLabel:`Quý ${q}/${y}`, quarter:q, year:y};
   }
   // nam
   const y = Number(state.year);
@@ -1132,8 +1129,8 @@ function shortNum(n){
 
 /* Hand-drawn SVG grouped bar chart — Kế hoạch vs Thực hiện per sub-period. No cumulative line here anymore. */
 function buildChartSVG(labels, khArr, ttArr){
-  const W = 960, H = 320;
-  const mL = 56, mR = 20, mT = 18, mB = 46;
+  const W = 560, H = 300;
+  const mL = 50, mR = 16, mT = 18, mB = 40;
   const plotW = W - mL - mR, plotH = H - mT - mB;
   const n = Math.max(1, labels.length);
   const groupW = plotW / n;
@@ -1286,8 +1283,8 @@ function renderLossChart(rows){
    thực hiện lũy kế vẽ đè lên trên; phần chênh lệch được tô màu để lộ insight
    vượt/chậm so với kế hoạch ngay trên biểu đồ. No external chart library. */
 function buildCumAreaSVG(labels, lkKh, lkTt){
-  const W = 960, H = 300;
-  const mL = 56, mR = 20, mT = 18, mB = 46;
+  const W = 560, H = 300;
+  const mL = 50, mR = 16, mT = 18, mB = 40;
   const plotW = W - mL - mR, plotH = H - mT - mB;
   const n = Math.max(1, labels.length);
   const stepX = n>1 ? plotW/(n-1) : plotW;
@@ -1339,8 +1336,8 @@ function buildCumAreaSVG(labels, lkKh, lkTt){
   const delta = lastTt - lastKh;
   const deltaPct = lastKh>0 ? (delta/lastKh*100) : 0;
   const aheadFinal = delta>=0;
-  const calloutW = 190, calloutH = 32;
-  const calloutX = Math.min(W-mR-calloutW, xAt(n-1)-calloutW/2+35), calloutY = mT+4;
+  const calloutW = 168, calloutH = 30;
+  const calloutX = Math.max(mL, Math.min(W-mR-calloutW, xAt(n-1)-calloutW/2+22)), calloutY = mT+2;
 
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -1361,9 +1358,69 @@ function buildCumAreaSVG(labels, lkKh, lkTt){
     <text class="axis-lbl" x="${mL}" y="12" text-anchor="start">lũy kế (kg)</text>
     <g transform="translate(${calloutX},${calloutY})">
       <rect class="callout-box" x="0" y="0" width="${calloutW}" height="${calloutH}" rx="7"/>
-      <text class="callout-txt" x="${calloutW/2}" y="21" text-anchor="middle" fill="${aheadFinal?'var(--teal)':'var(--rust)'}">${aheadFinal?'▲ Vượt KH':'▼ Chậm KH'} ${fmt(Math.abs(delta))} kg (${fmt1(Math.abs(deltaPct))}%)</text>
+      <text class="callout-txt" x="${calloutW/2}" y="20" text-anchor="middle" fill="${aheadFinal?'var(--teal)':'var(--rust)'}">${aheadFinal?'▲ Vượt':'▼ Chậm'} ${fmt(Math.abs(delta))} kg (${fmt1(Math.abs(deltaPct))}%)</text>
     </g>
   </svg>`;
+}
+
+/* Multi-line DRC(%) chart theo từng loại mủ — trục Y cố định 0-100% để 3 loại
+   mủ (nước ~25-35%, tạp ~44-53%, đông ~84-92%) so sánh được trực quan trên
+   cùng một thang đo. Chỉ vẽ đường của loại mủ đang được chọn trong bộ lọc. */
+function buildDrcTrendSVG(labels, series){
+  const W=960, H=260, mL=48, mR=20, mT=18, mB=40;
+  const plotW=W-mL-mR, plotH=H-mT-mB;
+  const n=Math.max(1,labels.length);
+  const stepX = n>1 ? plotW/(n-1) : plotW;
+  const xAt = i => mL + (n>1 ? stepX*i : plotW/2);
+  const y = v => mT + plotH - (v/100)*plotH;
+  const base = mT+plotH;
+
+  let grid='', axisL='';
+  [0,25,50,75,100].forEach(v=>{
+    const yy=y(v);
+    grid += `<line class="grid-line" x1="${mL}" y1="${yy}" x2="${W-mR}" y2="${yy}"/>`;
+    axisL += `<text class="axis-lbl" x="${mL-8}" y="${yy+3}" text-anchor="end">${v}%</text>`;
+  });
+  let xlabels='';
+  labels.forEach((lb,i)=>{
+    const showEvery = n>16 ? 2 : 1;
+    if(i % showEvery === 0){
+      xlabels += `<text class="x-lbl" x="${xAt(i).toFixed(1)}" y="${H-mB+18}" text-anchor="middle">${lb.replace('Tuần ','T').replace('Tháng ','Th ').replace('Ngày ','')}</text>`;
+    }
+  });
+
+  let paths='', dots='';
+  series.forEach(s=>{
+    const pts = s.values.map((v,i)=>[xAt(i), y(v)]);
+    const linePath = pts.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+    paths += `<path d="${linePath}" fill="none" stroke="${s.color}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    dots += pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="${s.color}"><title>${s.name} — ${labels[i]}: ${fmt1(s.values[i])}%</title></circle>`).join('');
+  });
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    ${grid}
+    <line x1="${mL}" y1="${base}" x2="${W-mR}" y2="${base}" stroke="var(--muted)" stroke-width="1"/>
+    ${paths}${dots}${axisL}${xlabels}
+  </svg>`;
+}
+function renderDrcTrend(rows){
+  const seriesDefs = [
+    {key:'nuoc', name:'DRC mủ nước (đo tại NM)', color:'var(--forest)', get:a=>a.drcNM},
+    {key:'tap',  name:'DRC mủ tạp',               color:'var(--gold)',  get:a=>a.drcTap},
+    {key:'dong', name:'DRC mủ đông',               color:'var(--rust)',  get:a=>a.drcDong},
+  ].filter(s=>state.loaimu.has(s.key));
+  const labels = rows.map(r=>r.label);
+  const series = seriesDefs.map(s=>({
+    name:s.name, color:s.color,
+    values: rows.map(r=>{ const a=aggDates(r.dates); return a.hasAnyData ? s.get(a) : 0; })
+  }));
+  document.getElementById('drcTrendChart').innerHTML = series.length
+    ? buildDrcTrendSVG(labels, series)
+    : '<p style="color:var(--muted);font-size:12.5px;">Chọn ít nhất 1 loại mủ để xem DRC.</p>';
+  document.getElementById('drcTrendLegend').innerHTML = series.map(s=>
+    `<span class="lg-item"><span class="sw line" style="background:${s.color}"></span>${s.name}</span>`).join('');
+  document.getElementById('drcTrendCaption').textContent =
+    'Thang đo 0–100% dùng chung cho cả 3 loại mủ để so sánh trực quan · DRC-NM dùng để quy đổi sản lượng khô';
 }
 
 function renderCumulativeArea(rows){
@@ -1422,9 +1479,9 @@ function renderDetailTable(rows){
       <td class="lbl">${r.label}</td>
       <td>${fmt(a.nuocTuoi)}<span class="drc-tag">${fmt1(a.drcNT)}% / ${fmt1(a.drcNM)}%</span></td>
       <td>${fmt(a.nuocQKtot)}</td>
-      <td>${fmt(a.tapTuoi)}<span class="drc-tag">≈48%</span></td>
+      <td>${fmt(a.tapTuoi)}<span class="drc-tag">${fmt1(a.drcTap)}%</span></td>
       <td>${fmt(a.tapQK)}</td>
-      <td>${fmt(a.dongTuoi)}<span class="drc-tag">≈88%</span></td>
+      <td>${fmt(a.dongTuoi)}<span class="drc-tag">${fmt1(a.drcDong)}%</span></td>
       <td>${fmt(a.dongQK)}</td>
       <td><b>${fmt(a.tongQK)}</b></td>
       <td>${fmt(a.kh)}</td>
@@ -1791,14 +1848,23 @@ function renderReasonPanel(rows, periodLabel){
       ${heatCell(r.leaf,'leaf','Nghi cao')}
       <td>${fmt1(r.pct)}%</td>
     </tr>`).join('')}</tbody>`;
-  const scopeTos = includedTo();
-  const modelRows = MOHINH_LIST.map((m,i)=>{
-    const a = aggDatesForTos(allDates,scopeTos,new Set([m]));
-    return {label:m, value:a.tongQK, sub:`DRC NM ${fmt1(a.drcNM)}%`, color:['var(--forest)','var(--gold)','var(--teal)'][i]};
-  });
-  document.getElementById('reasonModelDonut').innerHTML = donutChartHtml(modelRows);
-  wireDonutHover(document.getElementById('reasonModelDonut'));
   document.getElementById('reasonCaption').textContent = `${periodLabel} · ${s.affected}/${s.total} ngày có yếu tố làm giảm hoặc ngưng khai thác`;
+
+  // ALERT ĐỎ: nếu tỉ lệ ngày nghỉ/gián đoạn quá cao VÀ đang ảnh hưởng rõ tới tiến độ KH
+  const totalActual = reasonRows.reduce((sm,r)=>sm+r.actual,0);
+  const totalPlan = reasonRows.reduce((sm,r)=>sm+r.plan,0);
+  const achieveOverall = pct(totalActual, totalPlan);
+  const affectedRatio = s.total>0 ? s.affected/s.total*100 : 0;
+  const opsAlertEl = document.getElementById('opsAlert');
+  if(affectedRatio >= 35 && achieveOverall < 80 && s.total>0){
+    opsAlertEl.style.display = 'flex';
+    opsAlertEl.innerHTML = `<span class="ops-alert-icon">⚠</span>
+      <span class="ops-alert-text"><b>Cảnh báo vận hành:</b> ${fmt1(affectedRatio)}% số ngày trong kỳ bị ảnh hưởng bởi
+      chủ nhật/lễ/mưa bão/nghỉ cạo — cao hơn ngưỡng bình thường, và tiến độ kỳ này chỉ đạt
+      <b>${fmt1(achieveOverall)}% KH</b>. Nên rà soát lịch bố trí nhân công/lịch cạo để bù sản lượng các ngày còn lại.</span>`;
+  } else {
+    opsAlertEl.style.display = 'none';
+  }
 }
 /* ---- MONTH LENS helper: cluster theo đội, bar-in-bar cho từng tổ ---- */
 function clusterByDoiHtml(dates){
@@ -1867,7 +1933,7 @@ function renderMonthLens(){
 
 /* ---- YEAR LENS helper: xu hướng mùa vụ 12 tháng (line + season bands) ---- */
 function buildSeasonTrendSVG(monthRows){
-  const W=920, H=280, mL=52, mR=16, mT=16, mB=34;
+  const W=560, H=260, mL=44, mR=14, mT=16, mB=32;
   const plotW=W-mL-mR, plotH=H-mT-mB;
   const n = monthRows.length;
   const stepX = n>1 ? plotW/(n-1) : plotW;
@@ -1954,8 +2020,7 @@ function renderYearLens(){
   document.getElementById('yearDoiShare').innerHTML = treemapHtml(doiRows);
 }
 
-
-const TAB_LABELS = {tuan:'Báo cáo tuần', thang:'Báo cáo tháng', quy:'Báo cáo quý', nam:'Báo cáo năm'};
+const TAB_LABELS = {tuan:'Báo cáo tuần', thang:'Báo cáo tháng', nam:'Báo cáo năm'};
 function renderViewHeader(periodLabel){
   document.getElementById('viewEyebrow').textContent = TAB_LABELS[state.tab].toUpperCase();
   document.getElementById('viewTitle').textContent = periodLabel;
@@ -1974,11 +2039,11 @@ function renderAll(){
   document.getElementById('chartTitle').textContent =
     state.tab==='tuan' ? 'Sản lượng theo ngày trong tuần' :
     state.tab==='thang' ? 'Tổng quan theo tuần trong tháng' :
-    state.tab==='quy' ? 'Tổng quan theo tháng trong quý' :
     'Xu hướng sản lượng theo tháng trong năm';
   renderChart(rows);
   renderCumulativeArea(rows);
   renderLossChart(rows);
+  renderDrcTrend(rows);
   renderReasonPanel(rows, periodLabel);
   renderDetailTable(rows);
   renderCoCPanel(rows);
